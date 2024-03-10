@@ -5,9 +5,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from sqlalchemy import Float, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from wtforms import IntegerField, StringField, SubmitField
+from wtforms import FloatField, IntegerField, StringField, SubmitField
 from wtforms.validators import DataRequired
-from config import API_KEY
+
+from config import API_IMG_URL, API_KEY, API_SEARCH_URL, API_URL
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6b"
@@ -28,10 +29,13 @@ class Movies(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(250), unique=True, nullable=False)
     year: Mapped[int] = mapped_column(Integer, nullable=False)
-    description: Mapped[str] = mapped_column(String(800), unique=True, nullable=False)
-    rating: Mapped[float] = mapped_column(Float, nullable=False)
-    ranking: Mapped[int] = mapped_column(Integer, nullable=False)
-    review: Mapped[str] = mapped_column(String(800), unique=True, nullable=False)
+    description: Mapped[str] = mapped_column(
+        String(800),
+        nullable=False,
+    )
+    rating: Mapped[float] = mapped_column(Float, nullable=True)
+    ranking: Mapped[int] = mapped_column(Integer, nullable=True)
+    review: Mapped[str] = mapped_column(String(800), nullable=True)
     img_url: Mapped[str] = mapped_column(String(800), nullable=False)
 
 
@@ -40,17 +44,14 @@ with app.app_context():
 
 
 class MovieForm(FlaskForm):
-    rating = IntegerField("Your Rating Out of 10 e.g. 7.5", validators=[DataRequired()])
+    rating = FloatField("Your Rating Out of 10 e.g. 7.5", validators=[DataRequired()])
     review = StringField("Your Review", validators=[DataRequired()])
-    Submit = SubmitField("Submit")
+    submit = SubmitField("Submit")
 
 
 class AddMovie(FlaskForm):
     title = StringField("Movie Title", validators=[DataRequired()])
-    Submit = SubmitField("Add Movie")
-
-
-movie_data = requests.get(API_KEY).json()
+    submit = SubmitField("Add Movie")
 
 
 @app.route("/")
@@ -82,10 +83,35 @@ def delete():
     return redirect(url_for("home"))
 
 
-@app.route("/add")
+@app.route("/add", methods=["POST", "GET"])
 def add():
-    add_form = AddMovie()
-    return render_template("add.html", form=add_form)
+    form = AddMovie()
+    if form.validate_on_submit():
+        movie_title = form.title.data
+        response = requests.get(
+            API_SEARCH_URL, params={"api_key": API_KEY, "query": movie_title}
+        )
+        data = response.json()["results"]
+        return render_template("select.html", options=data)
+    return render_template("add.html", form=form)
+
+
+@app.route("/find")
+def find_movie():
+    movie_api_id = request.args.get("id")
+    if movie_api_id:
+        movie_url = f"{API_URL}/{movie_api_id}"
+        response = requests.get(movie_url, params={"api_key": API_KEY})
+        data = response.json()
+        new_movie = Movies(
+            title=data["title"],
+            year=data["release_date"].split("-")[0],
+            description=data["overview"],
+            img_url=f"{API_IMG_URL}{data["poster_path"]}",
+        )
+        db.session.add(new_movie)
+        db.session.commit()
+        return redirect(url_for("edit",id=new_movie.id))
 
 
 if __name__ == "__main__":
