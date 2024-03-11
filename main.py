@@ -56,6 +56,15 @@ class AddMovie(FlaskForm):
 
 @app.route("/")
 def home():
+    """
+    The `home` function retrieves all movies from the database, orders them by
+    rating, assigns a ranking to each movie, and then renders an HTML template with
+    the list of movies.
+    :return: The `home()` function is returning a rendered template "index.html"
+    with a list of all movies fetched from the database, sorted by their ratings.
+    The function updates the ranking of each movie based on its position in the
+    sorted list before committing the changes to the database.
+    """
     result = db.session.execute(db.select(Movies).order_by(Movies.rating)).scalars()
     all_movies = result.scalars().all()
     for i in range(len(all_movies)):
@@ -66,6 +75,12 @@ def home():
 
 @app.route("/edit", methods=["POST", "GET"])
 def edit():
+    """
+    The `edit` function in Python retrieves a movie from the database, allows for
+    editing its rating and review, and then updates the database with the changes.
+    :return: The `edit()` function is returning a rendered template "edit.html"
+    along with the form and movie data to be displayed on the webpage.
+    """
     form = MovieForm()
     movie_id = request.args.get("id")
     movie = db.get_or_404(Movies, movie_id)
@@ -79,6 +94,14 @@ def edit():
 
 @app.route("/delete", methods=["POST", "GET"])
 def delete():
+    """
+    The `delete` function deletes a movie record from the database based on the
+    provided movie ID and redirects to the home page.
+    :return: The `delete()` function is returning a redirect response to the "home"
+    route using `url_for("home")`. This means that after deleting the movie from
+    the database and committing the changes, the user will be redirected to the
+    "home" page.
+    """
     movie_id = request.args.get("id")
     movie = db.get_or_404(Movies, movie_id)
     db.session.delete(movie)
@@ -88,6 +111,13 @@ def delete():
 
 @app.route("/add", methods=["POST", "GET"])
 def add():
+    """
+    The `add` function in Python uses a form to search for movie titles using an
+    API and returns the search results in a template.
+    :return: The code snippet is a Python function named `add()` that seems to be
+    part of a Flask application. It appears to handle a form submission for adding
+    a movie.
+    """
     form = AddMovie()
     if form.validate_on_submit():
         movie_title = form.title.data
@@ -101,6 +131,13 @@ def add():
 
 @app.route("/find")
 def find_movie():
+    """
+    The `find_movie` function retrieves movie data from an API, creates a new movie
+    object, and adds it to the database.
+    :return: The `find_movie` function is returning a redirect response to the
+    "edit" route with the `id` parameter set to the `id` of the newly added movie
+    (`new_movie.id`).
+    """
     movie_api_id = request.args.get("id")
     if movie_api_id:
         movie_url = f"{API_URL}/{movie_api_id}"
