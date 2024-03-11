@@ -56,33 +56,13 @@ class AddMovie(FlaskForm):
 
 @app.route("/")
 def home():
-    """
-    The `home` function retrieves all movies from the database, orders them by
-    rating, assigns a ranking based on their order, and then renders them on the
-    index.html template.
-    :return: The `home()` function is returning a rendered template "index.html"
-    with a list of movies sorted by their ratings. The function retrieves all
-    movies from the database, orders them by their ratings, assigns a ranking to
-    each movie based on its position in the sorted list, and then commits the
-    changes to the database. Finally, it passes the list of movies to the
-    "index.html" template for rendering
-    """
     result = db.session.execute(db.select(Movies).order_by(Movies.rating)).scalars()
     all_movies = result.scalars().all()
-    for i in range(len(all_movies)):
-        all_movies[i].ranking = len(all_movies) - i
-    db.session.commit()
     return render_template("index.html", movies=all_movies)
 
 
 @app.route("/edit", methods=["POST", "GET"])
 def edit():
-    """
-    This Python function edits a movie's rating and review in a database and
-    redirects to the home page upon successful submission.
-    :return: The `edit()` function is returning a rendered template "edit.html"
-    along with the form and movie data.
-    """
     form = MovieForm()
     movie_id = request.args.get("id")
     movie = db.get_or_404(Movies, movie_id)
@@ -96,12 +76,6 @@ def edit():
 
 @app.route("/delete", methods=["POST", "GET"])
 def delete():
-    """
-    The `delete` function deletes a movie record from the database based on the
-    provided movie ID and redirects to the home page.
-    :return: The `delete()` function is returning a redirect response to the "home"
-    route using `url_for("home")`.
-    """
     movie_id = request.args.get("id")
     movie = db.get_or_404(Movies, movie_id)
     db.session.delete(movie)
@@ -111,14 +85,6 @@ def delete():
 
 @app.route("/add", methods=["POST", "GET"])
 def add():
-    """
-    The function `add()` retrieves movie search results based on user input and
-    renders a template with the search options.
-    :return: The code snippet is returning either the rendered template
-    "select.html" with the movie search results data if the form is validated and
-    submitted successfully, or it is returning the rendered template "add.html"
-    with the form for adding a movie if the form is not yet submitted or validated.
-    """
     form = AddMovie()
     if form.validate_on_submit():
         movie_title = form.title.data
@@ -132,13 +98,6 @@ def add():
 
 @app.route("/find")
 def find_movie():
-    """
-    The `find_movie` function retrieves movie data from an API based on an ID,
-    creates a new movie object with the retrieved data, and redirects to an edit
-    page for the new movie.
-    :return: The code snippet is returning a redirect response to the "edit" route
-    with the id of the newly added movie (new_movie.id).
-    """
     movie_api_id = request.args.get("id")
     if movie_api_id:
         movie_url = f"{API_URL}/{movie_api_id}"
