@@ -65,10 +65,10 @@ def home():
     The function updates the ranking of each movie based on its position in the
     sorted list before committing the changes to the database.
     """
-    result = db.session.execute(db.select(Movies).order_by(Movies.rating)).scalars()
+    result = db.session.execute(db.select(Movies).order_by(Movies.rating))
     all_movies = result.scalars().all()
     for i in range(len(all_movies)):
-        all_movies[i].ranking = len(all_movies) -1
+        all_movies[i].ranking = len(all_movies) - i
     db.session.commit()
     return render_template("index.html", movies=all_movies)
 
