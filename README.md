@@ -4,6 +4,9 @@ Website to rank and display movies. Data is sourced from an external database an
 
 ## Demo
 
+![demo3](https://github.com/jason-erasmus/flask-sqlalchemy-top-10-movies/assets/69726847/54b9e824-9138-4e73-9b38-1853f481f448)
+
+
 ## Installation
 
 1. Clone the repository
@@ -29,7 +32,9 @@ Website to rank and display movies. Data is sourced from an external database an
   pip install -r requirements.txt
 ```
 
-4. Run the main.py to initialize the local server and copy the link into your web broser
+4. Run the main.py to initialize the local server and copy the link into your web browser
+
+![initialize](https://github.com/jason-erasmus/flask-sqlalchemy-top-10-movies/assets/69726847/9121223a-dda8-49e5-b399-1a5020f16f0b)
 
 ## Documentation
 
