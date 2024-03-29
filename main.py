@@ -8,7 +8,11 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from wtforms import FloatField, IntegerField, StringField, SubmitField
 from wtforms.validators import DataRequired
 
-from config import API_IMG_URL, API_KEY, API_SEARCH_URL, API_URL
+
+API_KEY = "Get API Key from https://www.themoviedb.org/?language=en-GB"
+API_URL = "https://api.themoviedb.org/3/movie/"
+API_SEARCH_URL = "https://api.themoviedb.org/3/search/movie"
+API_IMG_URL = "https://image.tmdb.org/t/p/w300/"
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6b"
